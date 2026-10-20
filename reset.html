@@ -339,7 +339,13 @@ function apply(){
   document.querySelectorAll("[data-cols]").forEach(el=>{
     const cs = el.dataset.cols.split(",").map(Number);
     el.classList.toggle("dim", cs.every(c=>muted.has(c)));
-    if(el.classList.contains("bg")) el.classList.toggle("part", cs.some(c=>muted.has(c)) && !cs.every(c=>muted.has(c)));
+    if(el.classList.contains("bg")){
+      // Dashed when the cell includes muted players and its color doesn't match any team still shown under it
+      const color = ["s","p","t","b"].find(k=>el.classList.contains(k));
+      const shown = cs.filter(c=>!muted.has(c));
+      const matches = shown.some(c=>TEAMS[COLS[c].team].c === color);
+      el.classList.toggle("part", !!color && shown.length > 0 && shown.length < cs.length && !matches);
+    }
   });
   // Collapse muted columns to a thin strip
   const shut = i => collapsed && muted.has(i);
