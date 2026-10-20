@@ -5,6 +5,7 @@ Quick-reference pages for Project Diablo 2, hosted with GitHub Pages.
 | Page | File |
 | --- | --- |
 | Pathing Compass: which direction to explore in every zone | `pathing.html` |
+| Reset Sheet: act-by-act group reset plan with mutable columns | `reset.html` |
 
 ## Adding a page
 

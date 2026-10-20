@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PD2 Reset Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700;800&family=IBM+Plex+Sans+Condensed:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: matches Pathing Compass. Sticky pill bar, then one sheet per act (8 character columns, cells span columns/rows); a cell greys out only when every character it covers is muted. */
+:root{
+  --bg:#f3f1ee; --panel:#fffdfa; --ink:#1d1a17; --muted:#6c645b; --line:#ddd6cc; --grid:#cfc6ba;
+  --s:#b0302a; --p:#2f7a3b; --t:#b46a00; --b:#0b6f86; --g:#d6cec3; --w:#d6cec3;
+  --alert:#b0302a; --link:#0b6f86;
+  --mute:#c4beb6; --mute-ink:#55504a;
+  --stone:#2b2722; --stone-ink:#e6dccb;
+  --f-display:"Alegreya SC", Georgia, serif;
+  --f-body:"IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121014; --panel:#1b181d; --ink:#ece6dc; --muted:#a39a8f; --line:#2f2a31; --grid:#3a343b;
+  --s:#e2584f; --p:#5cb36a; --t:#e0a030; --b:#3fb4cf; --g:#3a343b; --w:#3a343b;
+  --alert:#e2584f; --link:#3fb4cf;
+  --mute:#0a090b; --mute-ink:#7a736b;
+  --stone:#0b0a0c; --stone-ink:#d8cdbb; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121014; --panel:#1b181d; --ink:#ece6dc; --muted:#a39a8f; --line:#2f2a31; --grid:#3a343b;
+  --s:#e2584f; --p:#5cb36a; --t:#e0a030; --b:#3fb4cf; --g:#3a343b; --w:#3a343b;
+  --alert:#e2584f; --link:#3fb4cf;
+  --mute:#0a090b; --mute-ink:#7a736b;
+  --stone:#0b0a0c; --stone-ink:#d8cdbb; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.32;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-size:clamp(28px,4vw,40px);margin:0;letter-spacing:.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:2px 0 0;max-width:70ch}
+.sub b{color:var(--ink);font-weight:600}
+.pill{font:600 14px var(--f-body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.pill:hover{border-color:var(--muted)}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.collapse .ct.dim,.collapse .hd.cls.dim{display:none}
+.tomb.off{visibility:hidden}
+.pill:focus-visible,.hd:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--bg);padding-block:8px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px}
+.bar a{font-family:var(--f-display);font-weight:700;padding:4px 12px}
+section{scroll-margin-top:60px;display:flex;flex-direction:column;gap:10px}
+h2{font-family:var(--f-display);font-size:24px;margin:8px 0 0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.sheet{display:grid;grid-template-columns:repeat(8,minmax(112px,1fr));min-width:920px;position:relative;gap:4px;padding:4px}
+.bg{border:2px solid var(--g);border-radius:5px;background:var(--panel);z-index:0}
+.bg.s{border-color:var(--s)} .bg.p{border-color:var(--p)} .bg.t{border-color:var(--t)} .bg.b{border-color:var(--b)} .bg.g{border-color:var(--g)} .bg.w{border-color:var(--w)}
+.bg.dim{background:var(--mute);border-color:var(--mute)}
+.hd.k-s{color:var(--s)} .hd.k-p{color:var(--p)} .hd.k-t{color:var(--t)} .hd.k-b{color:var(--b)}
+.ct{z-index:2;padding:5px 7px 7px;min-width:0;display:flex;flex-direction:column;overflow-wrap:anywhere}
+.ct .h{font-weight:600;font-size:14.5px}
+.ct .gap{height:10px}
+.ct .i{font-style:italic}
+.ct .al{font-weight:600;color:var(--alert)}
+.ct .blue{color:var(--link);font-weight:600}
+.ct.c{align-items:center;justify-content:center;text-align:center;font-weight:600;padding-block:10px;letter-spacing:.02em}
+.ct.dim{color:var(--mute-ink)}
+.ct.dim .al,.ct.dim .blue{color:var(--mute-ink)}
+.ct.dim .h{text-decoration:line-through;text-decoration-thickness:1px}
+.hd{z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;padding:3px 4px;user-select:none}
+.hd.cls{font-style:italic;color:var(--muted);font-size:13px}
+button.hd{font:600 14px var(--f-body);color:inherit;background:transparent;border:0;cursor:pointer}
+button.hd[data-team]{font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.02em}
+button.hd:hover{text-decoration:underline}
+button.hd[aria-pressed="true"]{text-decoration:line-through;color:var(--mute-ink)}
+.hd.cls.dim{color:var(--mute-ink)}
+.tombs{display:grid;grid-template-columns:repeat(8,minmax(112px,1fr));min-width:920px;background:var(--stone);gap:4px;padding:12px 4px}
+.tomb{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--stone-ink);font-size:12px;text-align:center}
+.tomb svg{width:44px;height:44px;max-width:100%}
+.tomb svg *{stroke:var(--stone-ink);fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.tomb b{font-family:var(--f-mono);font-size:12px;font-weight:500}
+footer{color:var(--muted);font-size:13px}
+footer a{color:inherit}
+
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}.home{color:var(--muted);font-size:13px;text-decoration:none}.home:hover{color:var(--ink)}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <a class="home" href="./">&larr; All PD2 pages</a>
+      <h1>PD2 Reset Sheet</h1>
+      <p class="sub">Who does what, act by act. Click a <b>name</b> to mute that column, or a <b>team</b> to mute both. Shared rows stay lit until everyone in them is muted.</p>
+    </div>
+    <div class="tools">
+      <button type="button" class="pill" id="collapse" aria-pressed="false" title="Shrink muted columns to a thin strip">Collapse muted</button>
+      <button type="button" class="pill" id="unmute">Unmute all</button>
+      <button type="button" class="pill" id="theme-btn">☾ Dark</button>
+    </div>
+  </header>
+  <nav class="bar" id="nav"></nav>
+  <div id="acts"></div>
+  <footer>Run order inspired by the <a href="https://hiimpd2.com/reset-guide">Hiim PD2 Group Reset Guide</a>. Muted columns are remembered in this browser.</footer>
+</div>
+
+<script>
+const COLS = [
+  {name:"Avondale",  cls:"Telesorc", build:"Blizzard",        team:0},
+  {name:"Tsai",      cls:"Assassin", build:"Bladesin",        team:1},
+  {name:"Nightcourt",cls:"Paladin",  build:"Support (Fanat)", team:1},
+  {name:"Wille",     cls:"Paladin",  build:"Hammers (Conc)",  team:1},
+  {name:"Greg",      cls:"Zon",      build:"LStrike/Summon",  team:2},
+  {name:"Migo",      cls:"Sorc",     build:"Meteor",          team:2},
+  {name:"Heph",      cls:"Druid",    build:"Summon",          team:3},
+  {name:"Opx",       cls:"Barb",     build:"Support",         team:3}
+];
+const TEAMS = [
+  {name:"Sorc Team", c:"s", cols:[0]},
+  {name:"Progression Team", c:"p", cols:[1,2,3]},
+  {name:"Tower Team", c:"t", cols:[4,5]},
+  {name:"Trist/Pits Team", c:"b", cols:[6,7]}
+];
+// Tomb symbols: [label, svg inner]
+const TOMBS = [
+  ["O", '<circle cx="32" cy="32" r="20"/><circle cx="32" cy="32" r="11"/>'],
+  [")", '<path d="M14 26 Q32 52 50 26"/><path d="M20 26 Q32 42 44 26"/>'],
+  ["■", '<rect x="14" y="16" width="36" height="32" rx="3"/><rect x="22" y="23" width="20" height="18" rx="1"/>'],
+  ["+", '<path d="M32 8 L38 26 L56 32 L38 38 L32 56 L26 38 L8 32 L26 26 Z"/>'],
+  [">>", '<path d="M14 16 L32 30 L50 16"/><path d="M14 30 L32 44 L50 30"/><path d="M26 44 L32 50 L38 44"/>'],
+  ["▲", '<path d="M32 10 L56 52 L8 52 Z"/><path d="M32 28 L42 46 L22 46 Z"/>'],
+  ["O)", '<circle cx="32" cy="32" r="20"/><path d="M20 26 Q32 44 44 26"/>']
+];
+/* Cell: [col, span, row, rowspan, color, flags, text]
+   text lines split by "|": "- x" plain line, "!x" alert, "~x" italic heading, "=x" plain text, "" gap, otherwise bold heading.
+   [[x]] = blue text, **x** = bold. Flags: "c" centered banner. */
+const ACTS = [
+ {id:"a1", n:"Act 1", rows:17, cells:[
+  [1,4,1,1,"p","","Cold Plains|- WP"],
+  [5,4,1,2,"t","","Den"],
+  [1,4,2,1,"p","","Stony|- WP"],
+  [1,8,3,1,"t","","Corpsefire"],
+  [1,8,4,1,"s","c","Shop - Buy scepter, sash, TPs"],
+  [1,6,5,1,"p","","Stony|- Rakanishu"],
+  [7,2,5,1,"b","","Stony|- Rakanishu|!Find Waypoint"],
+  [1,1,6,1,"s","","Underground Passage|- To Underground lvl 2 (fork char-left)"],
+  [2,2,6,1,"p","","Underground Passage|- To Darkwood (& TP)"],
+  [4,1,6,1,"s","","Underground Passage|- To Underground lvl 2 (fork char-left)"],
+  [5,4,6,1,"p","","Underground Passage|- To Darkwood (& TP)"],
+  [1,1,7,4,"s","","XP Portals|- Progression|- Tower|- Tristram|- Hole|- Pit"],
+  [2,3,7,2,"p","","Black Marsh||Tamoe||Outer Cloister|!Find Waypoint"],
+  [5,2,7,1,"t","","Black Marsh|!Find Waypoint"],
+  [7,2,7,1,"b","","Darkwood|- Tree"],
+  [5,2,8,3,"t","","Tower|- ~1 pack per level|- Countess"],
+  [7,2,8,1,"b","","Tristram|- Cain|- Wirt's Leg"],
+  [2,3,9,1,"p","","Barracks|- Malus"],
+  [7,2,9,1,"b","","Black Marsh|- To Hole"],
+  [2,3,10,2,"p","","Jail||Inner Cloister|!Find Waypoint|- Cathedral"],
+  [7,2,10,1,"b","","Tamoe|- To Pits"],
+  [1,1,11,1,"p","c","Join Progression"],
+  [5,2,11,1,"p","c","Join Progression"],
+  [7,2,11,1,"t","c","Join Tower"],
+  [1,8,12,1,"s","c","New Game - Wait for Opx to confirm"],
+  [1,1,13,3,"s","","XP Portals|- Progression|- Tower|- Tristram|- Hole|- Pit"],
+  [2,3,13,4,"p","","Catacombs|!Find Waypoint"],
+  [5,2,13,3,"t","","Tower|- ~1 pack per level|- Countess"],
+  [7,2,13,1,"b","","Tristram|- Wirt's Leg"],
+  [7,2,14,1,"b","","Black Marsh|- To Hole"],
+  [7,2,15,1,"b","","Tamoe|- To Pits"],
+  [1,1,16,1,"p","c","Join Progression"],
+  [5,2,16,1,"p","c","Join Progression"],
+  [7,2,16,1,"t","c","Join Tower"],
+  [1,8,17,1,"s","","Catacombs|- Andy (p8)"]
+ ]},
+ {id:"a2", n:"Act 2", tombs:true, rows:10, cells:[
+  [1,8,1,1,"p","","Rocky Wastes|- Initial Group"],
+  [1,1,2,5,"s","","XP Portals|- Progression|- Stony Tomb|- Halls of the Dead|- Maggot Lair|- Claw Viper|- Ancient Tunnels||Soak XP in Maggot"],
+  [2,3,2,1,"p","","Dry Hills|- (if found) Halls TP"],
+  [5,2,2,1,"t","","Sewers|- Books to town"],
+  [7,2,2,1,"b","","Rocky Wastes|- To Stony Tomb"],
+  [2,3,3,1,"p","","Far Oasis|- WP or Maggot TP ([[for BLUE]])"],
+  [5,2,3,1,"t","","Dry Hills|- To Halls of the Dead"],
+  [7,2,3,1,"b","","Stony Tomb"],
+  [2,3,4,2,"p","","Lost City|- TP|- To Claw Viper|- (optional) Ancient Tunnels TP"],
+  [5,2,4,1,"t","","Halls of the Dead|- Cubes to town"],
+  [7,2,4,1,"b","","Far Oasis|- To Maggot Lair"],
+  [5,2,5,1,"t","","Ancient Tunnels|- If time permits"],
+  [7,2,5,1,"b","","Maggot Lair|- Staff"],
+  [2,3,6,1,"p","","Claw Viper|- Snakefang"],
+  [5,2,6,1,"p","c","Join Progression"],
+  [7,2,6,1,"b","","Ancient Tunnels|- If time permits"],
+  [1,1,7,1,"s","","Arcane Sanctuary|- Top Left|- Top Right"],
+  [2,3,7,1,"p","","Arcane Sanctuary|- Bottom Left"],
+  [5,4,7,1,"t","","Arcane Sanctuary|- Bottom Right"],
+  [1,1,8,2,"s","","Shop|- Merc/Stash"],
+  [2,7,8,1,"t","","Tomb|- TP the entrance for the Symbol above your name"],
+  [2,1,9,1,"t","c","=O Tomb"],[3,1,9,1,"t","c","=) Tomb"],[4,1,9,1,"t","c","=■ Tomb"],[5,1,9,1,"t","c","=+ Tomb"],
+  [6,1,9,1,"t","c","=>> Tomb"],[7,1,9,1,"t","c","=▲ Tomb"],[8,1,9,1,"t","c","=O) Tomb"],
+  [1,8,10,1,"s","","Tomb|- Clear starting left -> right|- Speedrun to Chests & champ packs"]
+ ]},
+ {id:"a3", n:"Act 3", tombs:true, rows:12, cells:[
+  [1,8,1,1,"s","c","New Game - Wait for Opx to confirm"],
+  [1,1,2,1,"s","","Spider Cavern|- Eye"],
+  [2,1,2,2,"s","","A3 (on call)|- Exp'ing|- Snapshot TPs"],
+  [3,6,2,2,"p","","Tomb Runs|- TP the entrance for the Symbol above your name|- Follow Tsai lead|- Speedrun to Chests & champ packs"],
+  [1,1,3,1,"s","","Flayer Jungle"],
+  [1,1,4,1,"s","","Flayer Dungeon|- Entrance Portal"],
+  [2,6,4,1,"p","","Flayer Jungle|- Gidbinn"],
+  [8,1,4,1,"b","","Flayer Dungeon|- Heart"],
+  [1,1,5,1,"s","","Upper Kurast|- Sewers Portal"],
+  [2,6,5,1,"t","","Flayer Jungle|- Avon Tele's Uniques"],
+  [8,1,5,2,"p","","Upper Kurast||Travincal|- TP at WP"],
+  [1,1,6,2,"s","","Sewers 2|- Portal"],
+  [2,6,6,1,"t","","(optional) Kurast Bazaar|- Lam Esen's Tome"],
+  [2,7,7,1,"p","","Travincal|- Kill Council"],
+  [1,1,8,2,"s","","Durance 1/2|- Tele"],
+  [2,7,8,1,"t","","Wait / Shop"],
+  [2,7,9,1,"t","","(optional) Kurast Causeway|- Disused Reliquary & Ruined Fane"],
+  [1,1,10,1,"s","","Durance 3|- Lure Mephisto (p8?)"],
+  [2,7,10,1,"s","","Durance 3|- Kill Mephisto"],
+  [1,1,11,1,"s","","Durance 3|- TP A4 Portal"],
+  [2,7,11,1,"t","","Wait for Red Portal TP|- Take TP for A4 Portal"],
+  [1,1,12,1,"s","c","Do Progression"],
+  [2,7,12,1,"t","","Tomb Runs (if necessary)|- Loop until **all are level 20**"]
+ ]},
+ {id:"a4", n:"Act 4", rows:8, cells:[
+  [1,8,1,1,"s","","Outer Steppes|- Portal"],
+  [1,1,2,1,"s","","Plains of Despair|- Portal"],
+  [2,7,2,2,"p","","Plains of Despair|- Find Izual"],
+  [1,1,3,1,"s","","River of Flame|- Waypoint"],
+  [1,1,4,1,"p","","Plains of Despair|- Kill Izual"],
+  [2,7,4,1,"p","","Plains of Despair|- Kill Izual"],
+  [1,1,5,1,"s","","Hellforge ???"],
+  [2,1,5,1,"w","","=Shop ??"],[3,1,5,1,"w","",""],[4,1,5,1,"w","",""],[5,1,5,1,"w","",""],[6,1,5,1,"w","",""],[7,1,5,1,"w","",""],[8,1,5,1,"w","",""],
+  [1,1,6,1,"s","","Chaos Sanctuary|- Portal"],
+  [2,7,6,1,"s","","Chaos Sanctuary|- Clear to Diablo"],
+  [1,1,7,1,"s","c","Spawn Diablo (p1)"],
+  [2,7,7,1,"p","c","LEAVE GAME"],
+  [1,1,8,1,"s","","Chaos Sanctuary|- Portal"],
+  [2,7,8,1,"s","","Chaos Sanctuary|- Kill Diablo"]
+ ]},
+ {id:"a5", n:"Act 5", rows:14, cells:[
+  [1,1,1,2,"s","","Frigid Highlands|- Waypoint"],
+  [2,7,1,1,"p","","Wait"],
+  [2,7,2,2,"p","","Frigid Highlands|- Shenk|- Eldritch|- Barbarians Quest"],
+  [1,1,3,1,"s","","Crystalline Passage|- Waypoint"],
+  [1,1,4,1,"s","","~Anya|- Portal"],
+  [2,7,4,2,"p","","~Quest|- Anya"],
+  [1,1,5,1,"s","","Ancients' Way|- Waypoint"],
+  [1,1,6,2,"s","","Arreat Summit|- Portal|- Spawn Ancients"],
+  [2,7,6,1,"p","c","LEAVE GAME"],
+  [2,7,7,1,"p","","=Join ASAP|- Get to **Arreat Summit**"],
+  [1,1,8,1,"s","","Worldstone Keep"],
+  [2,7,8,2,"p","","Shop / Mercs"],
+  [1,1,9,1,"s","","Worldstone Keep|- Waypoint"],
+  [1,1,10,1,"s","","Throne Room|- Portal"],
+  [2,7,10,1,"p","","Portals|- Wait"],
+  [1,8,11,1,"s","","Throne Room|- Clear"],
+  [1,1,12,1,"s","c","Spawn Baal (p1)"],
+  [2,7,12,1,"p","c","LEAVE GAME"],
+  [1,8,13,1,"s","","Throne Room|- Kill Baal"],
+  [1,2,14,1,"w","","=Cows (if < 25 and not yet 28)"],
+  [3,6,14,1,"w","","=... TOP AND LEFT"]
+ ]}
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const inline = s => esc(s).replace(/\[\[(.+?)\]\]/g,'<span class="blue">$1</span>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+function lines(text){
+  if(!text) return "";
+  return text.split("|").map(l=>{
+    if(l==="") return '<span class="gap"></span>';
+    if(l.startsWith("- ")) return `<span>${inline(l)}</span>`;
+    if(l.startsWith("!")) return `<span class="al">- !!! ${inline(l.slice(1))} !!!</span>`;
+    if(l.startsWith("~")) return `<span class="h i">${inline(l.slice(1))}</span>`;
+    if(l.startsWith("=")) return `<span>${inline(l.slice(1))}</span>`;
+    return `<span class="h">${inline(l)}</span>`;
+  }).join("");
+}
+const place = (c,span,r,rs) => `grid-column:${c} / span ${span};grid-row:${r} / span ${rs}`;
+const HEAD = 4;
+
+function sheet(act){
+  const total = HEAD + act.rows;
+  let h = "";
+  // header: team row
+  TEAMS.forEach((t,ti)=>{
+    const c = t.cols[0]+1, span = t.cols.length;
+    h += `<div class="bg ${t.c}" data-cols="${t.cols.join(",")}" style="${place(c,span,1,1)}"></div>`;
+    h += `<button type="button" class="hd k-${t.c}" data-team="${ti}" style="${place(c,span,1,1)}" aria-pressed="false">${esc(t.name)}</button>`;
+  });
+  COLS.forEach((col,i)=>{
+    const tc = TEAMS[col.team].c;
+    h += `<div class="bg ${tc}" data-cols="${i}" style="${place(i+1,1,2,1)}"></div>`;
+    h += `<button type="button" class="hd" data-col="${i}" style="${place(i+1,1,2,1)}" aria-pressed="false" title="Mute or unmute ${esc(col.name)}">${esc(col.name)}</button>`;
+    h += `<div class="bg g" data-cols="${i}" style="${place(i+1,1,3,1)}"></div><div class="hd cls" data-cols="${i}" style="${place(i+1,1,3,1)}">${esc(col.cls)}</div>`;
+    h += `<div class="bg g" data-cols="${i}" style="${place(i+1,1,4,1)}"></div><div class="hd cls" data-cols="${i}" style="${place(i+1,1,4,1)}">${esc(col.build)}</div>`;
+  });
+  act.cells.forEach(([c,span,r,rs,color,flags,text])=>{
+    const p = place(c,span,r+HEAD,rs);
+    const cols = Array.from({length:span},(_,k)=>c-1+k).join(",");
+    h += `<div class="bg ${color}" data-cols="${cols}" style="${p}"></div>`;
+    h += `<div class="ct${flags.includes("c")?" c":""}" data-cols="${cols}" style="${p}">${lines(text)}</div>`;
+  });
+  return `<div class="scroll">${act.tombs?tombStrip():""}<div class="sheet">${h}</div></div>`;
+}
+function tombStrip(){
+  return `<div class="tombs" aria-label="Tal Rasha tomb symbols"><div></div>${TOMBS.map(([l,svg],i)=>
+    `<div class="tomb" data-tcol="${i+1}"><svg viewBox="0 0 64 64" aria-hidden="true">${svg}</svg><b>${esc(l)}</b><span>${esc(COLS[i+1].name)}</span></div>`).join("")}</div>`;
+}
+
+document.getElementById("nav").innerHTML = ACTS.map(a=>`<a class="pill" href="#${a.id}">${a.n}</a>`).join("");
+document.getElementById("acts").innerHTML = ACTS.map(a=>
+  `<section id="${a.id}"><h2>${a.n}</h2>${sheet(a)}</section>`).join("");
+
+// Muting
+const KEY = "pd2-reset-muted";
+let muted = new Set();
+const CKEY = "pd2-reset-collapse";
+let collapsed = false;
+try{ collapsed = localStorage.getItem(CKEY) === "1"; }catch(e){}
+try{ const m = JSON.parse(localStorage.getItem(KEY)); if(Array.isArray(m)) muted = new Set(m.filter(n=>n>=0&&n<8)); }catch(e){}
+function apply(){
+  document.querySelectorAll("[data-col]").forEach(el=>el.setAttribute("aria-pressed", muted.has(+el.dataset.col)));
+  document.querySelectorAll("[data-team]").forEach(el=>{
+    const all = TEAMS[+el.dataset.team].cols.every(c=>muted.has(c));
+    el.setAttribute("aria-pressed", all);
+  });
+  document.querySelectorAll("[data-cols]").forEach(el=>{
+    const cs = el.dataset.cols.split(",").map(Number);
+    el.classList.toggle("dim", cs.every(c=>muted.has(c)));
+  });
+  // Collapse muted columns to a thin strip
+  const shut = i => collapsed && muted.has(i);
+  document.documentElement.classList.toggle("collapse", collapsed);
+  document.getElementById("collapse").setAttribute("aria-pressed", collapsed);
+  const tpl = COLS.map((_,i)=> shut(i) ? "28px" : "minmax(112px,1fr)").join(" ");
+  const minW = COLS.reduce((w,_,i)=> w + (shut(i) ? 28 : 112), 0) + 7*4 + 8;
+  document.querySelectorAll(".sheet,.tombs").forEach(el=>{ el.style.gridTemplateColumns = tpl; el.style.minWidth = minW + "px"; });
+  document.querySelectorAll("[data-col]").forEach(el=>{ const i = +el.dataset.col; el.textContent = shut(i) ? COLS[i].name[0] : COLS[i].name; });
+  document.querySelectorAll("[data-team]").forEach(el=>{
+    const t = TEAMS[+el.dataset.team];
+    el.textContent = t.cols.every(shut) ? t.name[0] : t.name;
+  });
+  document.querySelectorAll("[data-tcol]").forEach(el=> el.classList.toggle("off", shut(+el.dataset.tcol)));
+  try{ localStorage.setItem(KEY, JSON.stringify([...muted])); localStorage.setItem(CKEY, collapsed ? "1" : "0"); }catch(e){}
+}
+document.addEventListener("click", e=>{
+  const col = e.target.closest("[data-col]");
+  const team = e.target.closest("[data-team]");
+  if(col){ const i = +col.dataset.col; muted.has(i) ? muted.delete(i) : muted.add(i); apply(); }
+  else if(team){
+    const cs = TEAMS[+team.dataset.team].cols;
+    const all = cs.every(c=>muted.has(c));
+    cs.forEach(c=> all ? muted.delete(c) : muted.add(c)); apply();
+  }
+});
+document.getElementById("unmute").addEventListener("click", ()=>{ muted.clear(); apply(); });
+document.getElementById("collapse").addEventListener("click", ()=>{ collapsed = !collapsed; apply(); });
+apply();
+
+// Theme toggle (shares the setting with the other PD2 pages)
+const root = document.documentElement, TKEY = "pd2-compass-theme";
+const mq = matchMedia("(prefers-color-scheme: dark)");
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : mq.matches;
+const tbtn = document.getElementById("theme-btn");
+const paint = () => { tbtn.textContent = isDark() ? "☀ Light" : "☾ Dark"; };
+try{ const t = localStorage.getItem(TKEY); if(t === "dark" || t === "light") root.dataset.theme = t; }catch(e){}
+paint(); mq.addEventListener && mq.addEventListener("change", paint);
+tbtn.addEventListener("click", ()=>{ const n = isDark() ? "light" : "dark"; root.dataset.theme = n; try{ localStorage.setItem(TKEY, n); }catch(e){} paint(); });
+</script>
+</body>
+</html>

@@ -52,7 +52,8 @@ footer{color:var(--muted);font-size:13px}
 </div>
 <script>
 const PAGES = [
-  {href:"pathing.html", glyph:"↻", name:"Pathing Compass", desc:"Which direction to explore in every zone, Acts I–V."}
+  {href:"pathing.html", glyph:"↻", name:"Pathing Compass", desc:"Which direction to explore in every zone, Acts I–V."},
+  {href:"reset.html", glyph:"▦", name:"Reset Sheet", desc:"Who does what, act by act, for the 8-player group reset. Mute and collapse columns."}
 ];
 document.getElementById("pages").innerHTML = PAGES.map(p =>
   `<li><a class="card" href="${p.href}"><span class="glyph">${p.glyph}</span><span class="txt"><span class="name">${p.name}</span><span class="desc">${p.desc}</span></span></a></li>`).join("");
