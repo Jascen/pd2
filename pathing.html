@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PD2 Pathing Compass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700;800&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky act bar + legend, then per-act grids of compact rows (glyph chip | zone | one-line note). */
+:root{
+  --bg:#f3f1ee; --panel:#fffdfa; --ink:#1d1a17; --muted:#6c645b; --line:#ddd6cc;
+  --cw:#b46a00; --ccw:#0b6f86; --str:#b0302a; --cmp:#6b3fa8; --fix:#5e5a55; --none:#8a8178; --rule:#5e5a55;
+  --chip-ink:#fff; --done:#c4beb6; --done-ink:#55504a;
+  --f-display:"Alegreya SC", Georgia, serif;
+  --f-body:"IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121014; --panel:#1b181d; --ink:#ece6dc; --muted:#a39a8f; --line:#2f2a31;
+  --cw:#e0a030; --ccw:#3fb4cf; --str:#e2584f; --cmp:#a582e0; --fix:#8d8780; --none:#6f675f; --rule:#8d8780;
+  --chip-ink:#121014; --done:#0a090b; --done-ink:#7a736b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121014; --panel:#1b181d; --ink:#ece6dc; --muted:#a39a8f; --line:#2f2a31;
+  --cw:#e0a030; --ccw:#3fb4cf; --str:#e2584f; --cmp:#a582e0; --fix:#8d8780; --none:#6f675f; --rule:#8d8780;
+  --chip-ink:#121014; --done:#0a090b; --done-ink:#7a736b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.35;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-size:clamp(28px,4vw,40px);margin:0;letter-spacing:.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:2px 0 0;max-width:62ch}
+.sub a{color:inherit}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;border-bottom:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:6px}
+nav a{font-family:var(--f-display);font-weight:700;text-decoration:none;color:var(--ink);border:1px solid var(--line);
+  padding:4px 12px;border-radius:999px;background:var(--panel)}
+nav a:hover,nav a:focus-visible{border-color:var(--ink);outline:none}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 16px;background:var(--panel);
+  border:1px solid var(--line);border-radius:8px;padding:14px}
+.legend div{display:flex;gap:10px;align-items:center;min-width:0}
+.legend small{color:var(--muted);font-size:13px}
+.chip{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:64px;height:28px;padding:0 8px;
+  border-radius:5px;background:var(--c);color:var(--chip-ink);font-family:var(--f-mono);font-size:12px;font-weight:500;letter-spacing:.04em}
+.chip b{font-family:var(--f-body);font-size:18px;line-height:1;font-weight:600}
+.chip.ghost{background:transparent;color:var(--c);border:1.5px solid var(--c);min-width:56px;height:24px}
+.chip.ghost b{font-size:15px}
+.t-cw{--c:var(--cw)} .t-ccw{--c:var(--ccw)} .t-str{--c:var(--str)} .t-cmp{--c:var(--cmp)}
+.t-fix{--c:var(--fix)} .t-none{--c:var(--none)} .t-rule{--c:var(--rule)}
+section{scroll-margin-top:60px;display:flex;flex-direction:column;gap:10px}
+h2{margin:8px 0 0}
+.act-btn{all:unset;cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:24px;display:flex;align-items:baseline;gap:10px;color:var(--ink);border-radius:4px}
+.act-btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.act-btn .caret{font-family:var(--f-body);font-size:16px;color:var(--muted);display:inline-block;transition:transform .15s}
+.act-btn[aria-expanded="false"] .caret{transform:rotate(-90deg)}
+.act-body{display:flex;flex-direction:column;gap:10px}
+.act-btn .count{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+button.row{font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%}
+button.row:hover{border-color:var(--muted)}
+button.row:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.row.done{background:var(--done);border-color:var(--done)}
+.row.done .name{color:var(--done-ink);text-decoration:line-through;text-decoration-thickness:1px}
+.row.done .note,.row.done .alt{color:var(--done-ink)}
+.row.done .chip{filter:grayscale(1);opacity:.55}
+@media (prefers-reduced-motion:reduce){.act-btn .caret{transition:none}}
+h2 .tag{font-family:var(--f-body);font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.rulebar{border-left:3px solid var(--rule);padding:6px 12px;background:var(--panel);border-radius:0 6px 6px 0;color:var(--ink)}
+.rulebar strong{color:var(--rule)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:6px}
+.row{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
+.row .txt{min-width:0;display:flex;flex-direction:column;gap:3px}
+.row .name{font-weight:600;font-size:15.5px}
+.row .note{color:var(--muted);font-size:13.5px}
+.alt{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.row.boss .name::after{content:" · boss";color:var(--str);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.theme-btn{font:600 14px var(--f-body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.theme-btn:hover{border-color:var(--muted)}
+.theme-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.theme-btn .ico{font-size:16px;line-height:1}
+.home{color:var(--muted);font-size:13px;text-decoration:none}.home:hover{color:var(--ink)}
+footer{color:var(--muted);font-size:13px}
+footer a{color:inherit}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <a class="home" href="./">&larr; All PD2 pages</a>
+      <h1>PD2 Pathing Compass</h1>
+      <p class="sub">Which way to explore in every zone, from the moment you arrive. Rotation is judged around the map edge from your entry tile. Tap a zone to mark it done; tap an act name to fold it away.</p>
+    </div>
+    <button type="button" class="theme-btn" id="theme-btn" aria-label="Switch theme"><span class="ico" id="theme-ico">☾</span><span id="theme-lbl">Dark</span></button>
+  </header>
+
+  <nav id="nav"></nav>
+
+  <div class="legend" id="legend"></div>
+
+  <div id="acts"></div>
+
+  <footer>Condensed from the <a href="https://hiimpd2.com/pathfinding">Hiim PD2 Pathfinding Guide</a>, adapted from Knoofle's PD2 Pathfinding Guide.</footer>
+</div>
+
+<script>
+const T = {
+  cw:  {g:"↻", l:"CW",    d:"Clockwise", s:"Hug the map edge clockwise from entry"},
+  ccw: {g:"↺", l:"CCW",   d:"Counter-clockwise", s:"Hug the map edge counter-clockwise"},
+  str: {g:"↑", l:"STR",   d:"Straight", s:"Push straight across; exit faces opposite your entry"},
+  fix: {g:"■", l:"FIXED", d:"Fixed layout", s:"Same map every time"},
+  none:{g:"?", l:"NONE",  d:"No pattern", s:"Explore fast; learn the dead-end tiles"},
+  rule:{g:"✦", l:"RULE",  d:"Outdoor rule", s:"Follow the act's outdoor rule"},
+  cmp: {g:"↗", l:"DIR",   d:"Screen direction", s:"Head toward a screen direction"}
+};
+const ARROW = {ne:"↗", nw:"↖", se:"↘", sw:"↙"};
+// [name, type, note, compassDir?, alts?[[type,label,dir?]], boss?]
+const ACTS = [
+ {id:"act1", n:"Act I", tag:"Follow the road",
+  rule:"Outdoor maps are linked by roads, and every cave entrance hangs off the road. Walk beside it, not on it, to catch waypoints and shrines.",
+  z:[
+  ["Blood Moor","rule","Den of Evil forks off the road near town. TP at the fork, grab the Cold Plains WP past Flavie first."],
+  ["Den of Evil","none","Clear every monster for the quest; no route needed."],
+  ["Cold Plains","rule","Stony Field passage sits mid-side. Corners lead to Burial Grounds. No teleport in Hell."],
+  ["Stony Field","rule","Underground Passage is on a cliff edge or a hole inside. Cairns are near the road."],
+  ["Underground Passage 1","str","Avoid red Fallen: their camp is a dead end."],
+  ["Dark Wood","rule","Follow the road to Black Marsh. Inifuss tree is here."],
+  ["Black Marsh","rule","Tower and waypoint usually sit near the map edge."],
+  ["Tower Cellar 1–4","cw",""],
+  ["Tower Cellar 5","fix","Countess.",null,null,1],
+  ["Tamoe Highland","cmp","Monastery Gate is always top right. Ignore the road (it bends to the Pit).","ne"],
+  ["Outer Cloister","cmp","Read the courtyard center:",null,[["cmp","Bushes, WP top-right → go top right","ne"],["cmp","Statue, WP right of it → go top left","nw"],["cmp","Statue, WP left / in front → go bottom right","se"]]],
+  ["Barracks","cw","Exit faces left of, or opposite, your entry. Malus position pins it down."],
+  ["Jail 1","str","",null,[["cw","Waypoint"]]],
+  ["Jail 2","str","",null,[["cw","Pitspawn Fouldog"]]],
+  ["Jail 3","cw","To Inner Cloister."],
+  ["Inner Cloister / Cathedral","fix","Catacombs stairs: right wing, at the back."],
+  ["Catacombs 1","none",""],
+  ["Catacombs 2","none","TP on arrival in case the WP shows up first.",null,[["ccw","From the waypoint"]]],
+  ["Catacombs 3","none",""],
+  ["Catacombs 4","fix","Andariel.",null,null,1]
+ ]},
+ {id:"act2", n:"Act II", tag:"Know your square",
+  rule:"Outdoor maps are squares; exits sit at corners. A full, square corner means the exit is there. An indent means it isn't. Avoid crossing the cliff more than once.",
+  z:[
+  ["Sewers 1","none","Enter by the docks door. Exit is usually near it; sweep both ways."],
+  ["Sewers 2","str","",null,[["cw","Waypoint"]]],
+  ["Sewers 3","cw","Radament.",null,null,1],
+  ["Rocky Wastes","rule","Left town top-left? Check for a close exit top right. Left top-right? Check top left."],
+  ["Dry Hills","rule","Halls of the Dead sits near red rocks. TP it, then find the next WP."],
+  ["Halls of the Dead 1","cw","",null,[["str","Waypoint"]]],
+  ["Halls of the Dead 2","cw","No teleport in Hell (levels 2–3)."],
+  ["Halls of the Dead 3","cw","Horadric Cube chest."],
+  ["Far Oasis","rule","Maggot Lair is near red rocks. TP it, find the Lost City WP first."],
+  ["Maggot Lair 1–2","ccw",""],
+  ["Maggot Lair 3","cmp","Straight to the top-right corner for the Staff of Kings.","ne"],
+  ["Lost City","rule","Exit is in the left, top or right corner, never bottom. It can be close to the entrance."],
+  ["Valley of Snakes","fix","Claw Viper Temple entrance is in the middle."],
+  ["Claw Viper Temple 1","cw",""],
+  ["Claw Viper Temple 2","fix","Amulet of the Viper."],
+  ["Harem / Palace Cellar","fix","From Harem 2, each corner is an up or down exit. Don't cut diagonals."],
+  ["Arcane Sanctuary","none","Four arms; run the one your class clears fastest. The symbol missing behind the Summoner marks the true tomb."],
+  ["Canyon of Magi","fix","Take the WP right outside the red portal."],
+  ["Tal Rasha's Tomb","cw","Orifice room (true tomb) or golden chest (false tomb)."],
+  ["Tal Rasha's Chamber","fix","Duriel. Bring Thawing Potions.",null,null,1]
+ ]},
+ {id:"act3", n:"Act III", tag:"Read the river",
+  rule:"Follow the river. Forks, dead ends and turns lead to side pockets. A three- or four-way fork means a new zone.",
+  z:[
+  ["Spider Forest","rule","Check pockets for the Spider Cavern. A four-way fork can skip Great Marsh."],
+  ["Spider Cavern","cmp","Khalim's Eye chest is in the bottom-left corner (Sszark).","sw"],
+  ["Great Marsh","rule","Stay on the main river, skip every pocket."],
+  ["Flayer Jungle","rule","Check pockets for Flayer Dungeon + Gidbinn. TP it, push on for a Kurast WP."],
+  ["Flayer Dungeon 1","cw",""],
+  ["Flayer Dungeon 2","cw",""],
+  ["Flayer Dungeon 3","fix","Brain chest: middle, top, left or bottom corner. Never right."],
+  ["Lower Kurast","rule","Pass through; grab the WP."],
+  ["Kurast Bazaar","rule","Find the Sewers, TP, get the Travincal WP first. Ruined Temple faces top right."],
+  ["Sewers 1","none","",null,[["ccw","From the golden chest room"]]],
+  ["Sewers 2","cmp","Khalim's Heart is top right.","ne"],
+  ["Upper Kurast","rule","Pass through."],
+  ["Travincal","fix","Kill a Council member for the Flail; smash the Orb."],
+  ["Durance of Hate 1","cw",""],
+  ["Durance of Hate 2","str","",null,[["cw","Waypoint"]]],
+  ["Durance of Hate 3","fix","Mephisto.",null,null,1]
+ ]},
+ {id:"act4", n:"Act IV", tag:"Squares, corners and centers",
+  rule:"Outdoor maps are squares; exits can be at corners or the middle of a side.",
+  z:[
+  ["Outer Steppes","rule","Check close to the Fortress first. Otherwise the side opposite the entrance, rarely top right."],
+  ["Plains of Despair","rule","Same rules. Izual for a skill point."],
+  ["City of the Damned","rule","River of Flame entrance is next to the WP. Sweep in serpentines."],
+  ["River of Flame","cmp","Runs to the top right with a few turns.","ne"],
+  ["Chaos Sanctuary","fix","Two layouts. Open seals, kill the superuniques. Bring lightning resist.",null,null,1]
+ ]},
+ {id:"act5", n:"Act V", tag:"Up-left or up-right",
+  rule:"Outdoor maps run toward the top left or the top right of the screen. Ice caves go clockwise.",
+  z:[
+  ["Bloody Foothills","cmp","Always top left from Harrogath.","nw"],
+  ["Frigid Highlands","rule","Top left or top right. Read the portals and stairs, or go straight up to the wall and follow it."],
+  ["Arreat Plateau","rule","Same as Frigid Highlands."],
+  ["Crystalline Passage","cw","To Glacial Trail.",null,[["ccw","Waypoint"],["str","Frozen River"]]],
+  ["Frozen River","fix","Four layouts. Use the bridge near the entrance to tell which."],
+  ["Glacial Trail","cw","To Frozen Tundra. WP tile faces the same way as entry.",null,[["ccw","Drifter Cavern"]]],
+  ["Frozen Tundra","cmp","Read the bottom of your screen on entry:",null,[["cmp","Tree line bottom-left → top right","ne"],["cmp","Icy cliff bottom-right → top left","nw"]]],
+  ["Ancients' Way","cw","To Arreat Summit.",null,[["ccw","Waypoint"]]],
+  ["Arreat Summit","fix","TP outside so the party can rejoin."],
+  ["Worldstone Keep 1","none",""],
+  ["Worldstone Keep 2","none","",null,[["ccw","From the waypoint"]]],
+  ["Worldstone Keep 3","none",""],
+  ["Throne of Destruction","fix","Baal.",null,null,1]
+ ]}
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function chip(type, dir, ghost){
+  const t = T[type]; const g = (type==="cmp" && dir) ? ARROW[dir] : t.g;
+  const lbl = (type==="cmp" && dir) ? dir.toUpperCase() : t.l;
+  return `<span class="chip t-${type}${ghost?" ghost":""}" title="${esc(t.d)}"><b>${g}</b>${lbl}</span>`;
+}
+
+document.getElementById("nav").innerHTML = ACTS.map(a=>`<a href="#${a.id}">${a.n}</a>`).join("");
+document.getElementById("legend").innerHTML = ["cw","ccw","str","cmp","fix","none","rule"].map(k=>
+  `<div>${chip(k, k==="cmp"?"ne":null)}<span><strong>${T[k].d}</strong><br><small>${T[k].s}</small></span></div>`).join("");
+
+document.getElementById("acts").innerHTML = ACTS.map(a=>`
+  <section id="${a.id}">
+    <h2><button class="act-btn" id="btn-${a.id}" aria-expanded="true" aria-controls="body-${a.id}" data-act="${a.id}"><span class="caret">▾</span>${a.n} <span class="tag">${esc(a.tag)}</span> <span class="count" id="count-${a.id}"></span></button></h2>
+    <div class="act-body" id="body-${a.id}">
+    <div class="rulebar"><strong>Outdoor rule ✦</strong> ${esc(a.rule)}</div>
+    <div class="grid">${a.z.map(([name,type,note,dir,alts,boss],i)=>`
+      <button type="button" class="row${boss?" boss":""}" id="z-${a.id}-${i}" aria-pressed="false" data-act="${a.id}">
+        ${chip(type,dir)}
+        <div class="txt">
+          <span class="name">${esc(name)}</span>
+          ${note?`<span class="note">${esc(note)}</span>`:""}
+          ${alts?alts.map(([t,l,d])=>`<span class="alt">${chip(t,d,true)}${esc(l)}</span>`).join(""):""}
+        </div>
+      </button>`).join("")}
+    </div>
+    </div>
+  </section>`).join("");
+
+// Theme toggle
+const root = document.documentElement;
+const TKEY = "pd2-compass-theme";
+const mq = window.matchMedia("(prefers-color-scheme: dark)");
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : mq.matches;
+function paintThemeBtn(){
+  const d = isDark();
+  document.getElementById("theme-ico").textContent = d ? "☀" : "☾";
+  document.getElementById("theme-lbl").textContent = d ? "Light" : "Dark";
+  document.getElementById("theme-btn").setAttribute("aria-label", d ? "Switch to light theme" : "Switch to dark theme");
+}
+try{ const t = localStorage.getItem(TKEY); if(t === "dark" || t === "light") root.dataset.theme = t; }catch(e){}
+paintThemeBtn();
+mq.addEventListener && mq.addEventListener("change", paintThemeBtn);
+document.getElementById("theme-btn").addEventListener("click", ()=>{
+  const next = isDark() ? "light" : "dark";
+  root.dataset.theme = next;
+  try{ localStorage.setItem(TKEY, next); }catch(e){}
+  paintThemeBtn();
+});
+
+// Per-viewer state: marked zones and collapsed acts
+const KEY = "pd2-compass-v1";
+let state = {done:{}, closed:{}};
+try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.done && s.closed) state = s; }catch(e){}
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} };
+
+function updateCount(act){
+  const rows = document.querySelectorAll(`#body-${act} .row`);
+  const n = [...rows].filter(r=>r.classList.contains("done")).length;
+  document.getElementById(`count-${act}`).textContent = `${n}/${rows.length}`;
+}
+function setZone(el, on){
+  el.classList.toggle("done", on); el.setAttribute("aria-pressed", on);
+}
+function setAct(act, open){
+  document.getElementById(`body-${act}`).hidden = !open;
+  document.getElementById(`btn-${act}`).setAttribute("aria-expanded", open);
+}
+
+document.querySelectorAll(".row").forEach(el=>{
+  if(state.done[el.id]) setZone(el, true);
+  el.addEventListener("click", ()=>{
+    const on = !el.classList.contains("done");
+    setZone(el, on);
+    if(on) state.done[el.id] = 1; else delete state.done[el.id];
+    save(); updateCount(el.dataset.act);
+  });
+});
+document.querySelectorAll(".act-btn").forEach(btn=>{
+  const act = btn.dataset.act;
+  if(state.closed[act]) setAct(act, false);
+  updateCount(act);
+  btn.addEventListener("click", ()=>{
+    const open = btn.getAttribute("aria-expanded") !== "true";
+    setAct(act, open);
+    if(open) delete state.closed[act]; else state.closed[act] = 1;
+    save();
+  });
+});
+
+try{ if(location.hash){ const el=document.getElementById(location.hash.slice(1)); el&&el.scrollIntoView(); } }catch(e){}
+</script>
+</body>
+</html>

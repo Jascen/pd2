@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PD2 Field Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700;800&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: single column index; add an entry to PAGES to list a new page. */
+:root{
+  --bg:#f3f1ee; --panel:#fffdfa; --ink:#1d1a17; --muted:#6c645b; --line:#ddd6cc; --accent:#b46a00;
+  --f-display:"Alegreya SC", Georgia, serif;
+  --f-body:"IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121014; --panel:#1b181d; --ink:#ece6dc; --muted:#a39a8f; --line:#2f2a31; --accent:#e0a030; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121014; --panel:#1b181d; --ink:#ece6dc; --muted:#a39a8f; --line:#2f2a31; --accent:#e0a030; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.4;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+h1{font-family:var(--f-display);font-size:clamp(30px,5vw,44px);margin:0}
+.sub{color:var(--muted);margin:2px 0 0}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+a.card{display:flex;gap:14px;align-items:center;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+a.card:hover{border-color:var(--muted)}
+a.card:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.glyph{flex:none;width:40px;height:40px;border-radius:6px;background:var(--accent);color:var(--bg);display:grid;place-items:center;font-size:22px;font-weight:600}
+.txt{min-width:0;display:flex;flex-direction:column;gap:2px}
+.name{font-weight:600;font-size:17px}
+.desc{color:var(--muted);font-size:14px}
+.theme-btn{font:600 14px var(--f-body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.theme-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+footer{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>PD2 Field Notes</h1>
+      <p class="sub">Quick references for Project Diablo 2.</p>
+    </div>
+    <button type="button" class="theme-btn" id="theme-btn">Dark</button>
+  </header>
+  <ul id="pages"></ul>
+  <footer>A free fan resource. Not affiliated with Blizzard Entertainment or the Project Diablo 2 team.</footer>
+</div>
+<script>
+const PAGES = [
+  {href:"pathing.html", glyph:"↻", name:"Pathing Compass", desc:"Which direction to explore in every zone, Acts I–V."}
+];
+document.getElementById("pages").innerHTML = PAGES.map(p =>
+  `<li><a class="card" href="${p.href}"><span class="glyph">${p.glyph}</span><span class="txt"><span class="name">${p.name}</span><span class="desc">${p.desc}</span></span></a></li>`).join("");
+
+// Shares the theme choice with the guide pages
+const root = document.documentElement, TKEY = "pd2-compass-theme";
+const mq = matchMedia("(prefers-color-scheme: dark)");
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : mq.matches;
+const btn = document.getElementById("theme-btn");
+const paint = () => { btn.textContent = isDark() ? "☀ Light" : "☾ Dark"; };
+try{ const t = localStorage.getItem(TKEY); if(t === "dark" || t === "light") root.dataset.theme = t; }catch(e){}
+paint(); mq.addEventListener && mq.addEventListener("change", paint);
+btn.addEventListener("click", () => { const n = isDark() ? "light" : "dark"; root.dataset.theme = n; try{ localStorage.setItem(TKEY, n); }catch(e){} paint(); });
+</script>
+</body>
+</html>
