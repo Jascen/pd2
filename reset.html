@@ -136,7 +136,12 @@ footer a{color:inherit}
         <input type="radio" name="borders" id="bd-lines" value="lines"><label for="bd-lines">Different</label>
         <input type="radio" name="borders" id="bd-colors" value="colors" checked><label for="bd-colors">Colored</label>
       </fieldset>
-      <button type="button" class="pill" id="collapse" aria-pressed="true" title="Shrink muted columns to a thin strip">Collapse muted</button>
+      <fieldset class="seg" id="toggle-seg">
+        <legend>Toggle behavior</legend>
+        <span class="seg-title" aria-hidden="true">Toggle behavior:</span>
+        <input type="radio" name="toggle" id="tg-mute" value="mute"><label for="tg-mute" title="Grey out muted columns but keep their width">Mute</label>
+        <input type="radio" name="toggle" id="tg-hide" value="hide" checked><label for="tg-hide" title="Shrink muted columns to a thin strip">Hide</label>
+      </fieldset>
       <button type="button" class="pill" id="unmute">Unmute all</button>
       <button type="button" class="pill" id="theme-btn">☾ Dark</button>
     </div>
@@ -386,7 +391,7 @@ function apply(){
   // Collapse muted columns to a thin strip
   const shut = i => collapsed && muted.has(i);
   document.documentElement.classList.toggle("collapse", collapsed);
-  document.getElementById("collapse").setAttribute("aria-pressed", collapsed);
+  document.getElementById(collapsed ? "tg-hide" : "tg-mute").checked = true;
   layout();
   document.querySelectorAll("[data-col]").forEach(el=>{ const i = +el.dataset.col; el.textContent = shut(i) ? COLS[i].name[0] : COLS[i].name; });
   document.querySelectorAll("[data-team]").forEach(el=>{
@@ -434,7 +439,7 @@ document.addEventListener("click", e=>{
   }
 });
 document.getElementById("unmute").addEventListener("click", ()=>{ muted.clear(); apply(); });
-document.getElementById("collapse").addEventListener("click", ()=>{ collapsed = !collapsed; apply(); });
+document.querySelectorAll('input[name="toggle"]').forEach(r=> r.addEventListener("change", ()=>{ if(r.checked){ collapsed = r.value === "hide"; apply(); } }));
 apply();
 
 // Display option: team colors or team line styles
