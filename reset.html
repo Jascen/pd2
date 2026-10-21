@@ -88,6 +88,10 @@ h2{margin:8px 0 0}
 .hint.wp{border-style:dashed}
 .hint.wp::before{content:"WP";font:700 10px var(--f-body);letter-spacing:.04em;color:var(--bg);background:var(--ink);border-radius:3px;padding:0 3px}
 .nohints .hints{display:none}
+.hint .v-rot,.hint .v-lr{display:inline-flex;align-items:center;gap:4px}
+.hint .v-lr{display:none}
+.hint-lr .hint .v-lr{display:inline-flex}
+.hint-lr .hint .v-rot{display:none}
 .ct.dim .hint{color:var(--mute-ink)}
 /* Border style picker */
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--panel);padding:2px;margin:0;gap:2px}
@@ -148,7 +152,8 @@ footer a{color:inherit}
       <fieldset class="seg" id="hint-seg">
         <legend>Pathfinding hint</legend>
         <span class="seg-title" aria-hidden="true">Pathfinding hint:</span>
-        <input type="radio" name="hints" id="ph-show" value="show" checked><label for="ph-show">Show</label>
+        <input type="radio" name="hints" id="ph-rot" value="rot" checked><label for="ph-rot" title="Clockwise / counter-clockwise around the map edge">CW/CCW</label>
+        <input type="radio" name="hints" id="ph-lr" value="lr"><label for="ph-lr" title="Which hand to keep on the wall">Left/Right</label>
         <input type="radio" name="hints" id="ph-hide" value="hide"><label for="ph-hide">Hide</label>
       </fieldset>
       <fieldset class="seg" id="toggle-seg">
@@ -370,10 +375,12 @@ const HINTS = {
   "a5:5:1":[["ccw","entrance to WP",1]]
 };
 const HG = {cw:["↻","CW"], ccw:["↺","CCW"], str:["↑","STR"]};
+// Left/Right wording: clockwise = keep the wall on your left; counter-clockwise = wall on your right
+const HL = {cw:["⇤","Left wall"], ccw:["⇥","Right wall"], str:["↑","Straight"]};
 function hintsHTML(key){
   const h = HINTS[key]; if(!h) return "";
   return `<span class="hints">${h.map(([d,where,wp])=>
-    `<span class="hint${wp?" wp":""}" title="${wp?"Waypoint: ":""}${HG[d][1]} ${esc(where)}"><b>${HG[d][0]}</b>${HG[d][1]} <i>${esc(where)}</i></span>`).join("")}</span>`;
+    `<span class="hint${wp?" wp":""}" title="${wp?"Waypoint: ":""}${HG[d][1]} / ${HL[d][1]} ${esc(where)}"><span class="v-rot"><b>${HG[d][0]}</b>${HG[d][1]}</span><span class="v-lr"><b>${HL[d][0]}</b>${HL[d][1]}</span> <i>${esc(where)}</i></span>`).join("")}</span>`;
 }
 function sheet(act){
   const total = HEAD + act.rows;
@@ -504,15 +511,17 @@ document.querySelectorAll('input[name="borders"]').forEach(r=> r.addEventListene
 
 // Pathfinding hints: show / hide
 const HKEY = "pd2-reset-hints";
-function setHints(show){
-  document.documentElement.classList.toggle("nohints", !show);
-  document.getElementById(show ? "ph-show" : "ph-hide").checked = true;
-  try{ localStorage.setItem(HKEY, show ? "show" : "hide"); }catch(e){}
+function setHints(v){
+  if(!["rot","lr","hide"].includes(v)) v = "rot"; // older saved "show" becomes CW/CCW
+  document.documentElement.classList.toggle("nohints", v === "hide");
+  document.documentElement.classList.toggle("hint-lr", v === "lr");
+  document.getElementById("ph-" + v).checked = true;
+  try{ localStorage.setItem(HKEY, v); }catch(e){}
 }
-let showHints = true;
-try{ showHints = localStorage.getItem(HKEY) !== "hide"; }catch(e){}
-setHints(showHints);
-document.querySelectorAll('input[name="hints"]').forEach(r=> r.addEventListener("change", ()=>{ if(r.checked) setHints(r.value === "show"); }));
+let hintMode = "rot";
+try{ hintMode = localStorage.getItem(HKEY) || "rot"; }catch(e){}
+setHints(hintMode);
+document.querySelectorAll('input[name="hints"]').forEach(r=> r.addEventListener("change", ()=>{ if(r.checked) setHints(r.value); }));
 
 // Act headers fold their whole grid away
 const AKEY = "pd2-reset-closed-acts";
