@@ -178,9 +178,9 @@ const TOMBS = [
    [[x]] = blue text, **x** = bold. Flags: "c" centered banner. */
 const ACTS = [
  {id:"a1", n:"Act 1", rows:17, cells:[
-  [1,4,1,1,"s","","Cold Plains|- WP"],
+  [1,4,1,1,"s","","Cold Plains|!Find Waypoint"],
   [5,4,1,2,"t","","Den"],
-  [1,4,2,1,"s","","Stony|- WP"],
+  [1,4,2,1,"s","","Stony|!Find Waypoint>(if time)"],
   [1,8,3,1,"t","","Corpsefire"],
   [1,8,4,1,"s","c","Shop - Buy scepter, sash, TPs"],
   [1,6,5,1,"s","","Stony|- Rakanishu"],
@@ -313,7 +313,10 @@ function lines(text){
   return text.split("|").map(l=>{
     if(l==="") return '<span class="gap"></span>';
     if(l.startsWith("- ")) return `<span>${inline(l)}</span>`;
-    if(l.startsWith("!")) return `<span class="al">- !!! ${inline(l.slice(1))} !!!</span>`;
+    if(l.startsWith("!")){ // "!Text>note" adds a plain note after the warning
+      const [msg, note] = l.slice(1).split(">");
+      return `<span><span class="al">- !!! ${inline(msg)} !!!</span>${note ? " " + inline(note) : ""}</span>`;
+    }
     if(l.startsWith("~")) return `<span class="h i">${inline(l.slice(1))}</span>`;
     if(l.startsWith("=")) return `<span>${inline(l.slice(1))}</span>`;
     return `<span class="h">${inline(l)}</span>`;
