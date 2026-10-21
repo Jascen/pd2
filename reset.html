@@ -65,6 +65,32 @@ h2{margin:8px 0 0}
 .bg.dim{background:var(--mute);border-color:var(--mute)}
 .bg.part{border-style:dashed}
 .strip{background:var(--mute);border-radius:5px;opacity:.55;z-index:0}
+/* Line-style display: one ink color, teams told apart by border style */
+.lines .bg.s{border:2px solid var(--ink);background:var(--panel)}
+.lines .bg.t{border:5px double var(--ink);background:var(--panel)}
+.lines .bg.p{border:2px solid transparent;background:var(--panel);position:relative}
+.lines .bg.p::before{content:"";position:absolute;inset:-2px;border-radius:5px;background:var(--ink);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='6' fill='none' stroke='black' stroke-width='4' stroke-dasharray='16 9'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='6' fill='none' stroke='black' stroke-width='4' stroke-dasharray='16 9'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+.lines .bg.b{border:3px dotted var(--ink);background:var(--panel)}
+.lines .bg.part,.lines .bg.dim{border-color:transparent}
+.lines .bg.dim{background:var(--mute)}
+.lines .bg.p.part::before,.lines .bg.p.dim::before{display:none}
+/* No-borders display */
+.none .sheet .bg{border-color:transparent;background:var(--panel)}
+.none .sheet .bg.dim{background:var(--mute)}
+.none .hd.k-s,.none .hd.k-p,.none .hd.k-t,.none .hd.k-b,.none .ct .blue{color:var(--ink)}
+/* Border style picker */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--panel);padding:2px;margin:0;gap:2px}
+.seg legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{font:600 14px var(--f-body);color:var(--ink);padding:5px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg label:hover{background:var(--bg)}
+.seg{align-items:center}
+.seg-title{font-size:13px;color:var(--muted);padding:0 4px 0 10px;white-space:nowrap}
+.seg input:checked + label{background:var(--ink);color:var(--bg)}
+.seg input:focus-visible + label{outline:2px solid var(--ink);outline-offset:2px}
+.lines .hd.k-s,.lines .hd.k-p,.lines .hd.k-t,.lines .hd.k-b,.lines .ct .blue{color:var(--ink)}
 .hd.k-s{color:var(--s)} .hd.k-p{color:var(--p)} .hd.k-t{color:var(--t)} .hd.k-b{color:var(--b)}
 .ct{z-index:2;padding:5px 7px 7px;min-width:0;display:flex;flex-direction:column;overflow-wrap:anywhere}
 .ct .h{font-weight:600;font-size:14.5px}
@@ -103,7 +129,14 @@ footer a{color:inherit}
       <p class="sub">Who does what, act by act. Click a <b>name</b> to mute that column, or a <b>team</b> to mute both. Shared rows stay lit until everyone in them is muted.</p>
     </div>
     <div class="tools">
-      <button type="button" class="pill" id="collapse" aria-pressed="false" title="Shrink muted columns to a thin strip">Collapse muted</button>
+      <fieldset class="seg" id="style-seg">
+        <legend>Border style</legend>
+        <span class="seg-title" aria-hidden="true">Border style:</span>
+        <input type="radio" name="borders" id="bd-none" value="none"><label for="bd-none">None</label>
+        <input type="radio" name="borders" id="bd-lines" value="lines"><label for="bd-lines">Different</label>
+        <input type="radio" name="borders" id="bd-colors" value="colors" checked><label for="bd-colors">Colored</label>
+      </fieldset>
+      <button type="button" class="pill" id="collapse" aria-pressed="true" title="Shrink muted columns to a thin strip">Collapse muted</button>
       <button type="button" class="pill" id="unmute">Unmute all</button>
       <button type="button" class="pill" id="theme-btn">☾ Dark</button>
     </div>
@@ -327,8 +360,8 @@ document.getElementById("acts").innerHTML = ACTS.map(a=>
 const KEY = "pd2-reset-muted";
 let muted = new Set();
 const CKEY = "pd2-reset-collapse";
-let collapsed = false;
-try{ collapsed = localStorage.getItem(CKEY) === "1"; }catch(e){}
+let collapsed = true; // on by default
+try{ collapsed = localStorage.getItem(CKEY) !== "0"; }catch(e){}
 try{ const m = JSON.parse(localStorage.getItem(KEY)); if(Array.isArray(m)) muted = new Set(m.filter(n=>n>=0&&n<8)); }catch(e){}
 function apply(){
   document.querySelectorAll("[data-col]").forEach(el=>el.setAttribute("aria-pressed", muted.has(+el.dataset.col)));
@@ -400,6 +433,21 @@ document.addEventListener("click", e=>{
 document.getElementById("unmute").addEventListener("click", ()=>{ muted.clear(); apply(); });
 document.getElementById("collapse").addEventListener("click", ()=>{ collapsed = !collapsed; apply(); });
 apply();
+
+// Display option: team colors or team line styles
+const SKEY = "pd2-reset-style";
+const MODES = ["colors","lines","none"];
+function setStyle(mode){
+  if(!MODES.includes(mode)) mode = "colors";
+  document.documentElement.classList.toggle("lines", mode === "lines");
+  document.documentElement.classList.toggle("none", mode === "none");
+  document.getElementById("bd-" + mode).checked = true;
+  try{ localStorage.setItem(SKEY, mode); }catch(e){}
+}
+let mode = "colors";
+try{ mode = localStorage.getItem(SKEY) || "colors"; }catch(e){}
+setStyle(mode);
+document.querySelectorAll('input[name="borders"]').forEach(r=> r.addEventListener("change", ()=>{ if(r.checked) setStyle(r.value); }));
 
 // Act headers fold their whole grid away
 const AKEY = "pd2-reset-closed-acts";
