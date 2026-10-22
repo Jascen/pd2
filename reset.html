@@ -130,6 +130,8 @@ button.hd[aria-pressed="true"]{text-decoration:line-through;color:var(--mute-ink
 .hd.cls.dim{color:var(--mute-ink)}
 .tombs{display:grid;grid-template-columns:repeat(8,minmax(112px,1fr));min-width:920px;background:var(--stone);gap:4px;padding:12px 4px}
 .tomb{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--stone-ink);font-size:12px;text-align:center}
+.tomb-ic{width:44px;height:44px;border-radius:6px;background:#000;margin-bottom:4px}
+.ct.dim .tomb-ic{opacity:.45}
 .tomb img{width:48px;height:48px;max-width:100%;mix-blend-mode:screen}
 .tomb b{font-family:var(--f-mono);font-size:12px;font-weight:500}
 footer{color:var(--muted);font-size:13px}
@@ -250,7 +252,7 @@ const ACTS = [
   [7,2,16,1,"b","c","Join Tower"],
   [1,8,17,1,"s","","Catacombs|- Andy (p8)"]
  ]},
- {id:"a2", n:"Act 2", tombs:true, rows:10, cells:[
+ {id:"a2", n:"Act 2", rows:10, cells:[
   [1,8,1,1,"s","","Rocky Wastes|- Initial Group"],
   [1,1,2,5,"s","","XP Portals|- Progression|- Stony Tomb|- Halls of the Dead|- Maggot Lair|- Claw Viper|- Ancient Tunnels||Soak XP in Maggot"],
   [2,3,2,1,"p","","Dry Hills|- (if found) Halls TP"],
@@ -272,8 +274,8 @@ const ACTS = [
   [5,4,7,1,"t","","Arcane Sanctuary|- Bottom Right"],
   [1,1,8,2,"s","","Shop|- Merc/Stash"],
   [2,7,8,1,"p","","Tomb|- TP the entrance for the Symbol above your name"],
-  [2,1,9,1,"p","c","=O Tomb"],[3,1,9,1,"p","c","=) Tomb"],[4,1,9,1,"p","c","=■ Tomb"],[5,1,9,1,"t","c","=+ Tomb"],
-  [6,1,9,1,"t","c","=>> Tomb"],[7,1,9,1,"b","c","=▲ Tomb"],[8,1,9,1,"b","c","=O) Tomb"],
+  [2,1,9,1,"p","c","@0|=O Tomb"],[3,1,9,1,"p","c","@1|=) Tomb"],[4,1,9,1,"p","c","@2|=■ Tomb"],[5,1,9,1,"t","c","@3|=+ Tomb"],
+  [6,1,9,1,"t","c","@4|=>> Tomb"],[7,1,9,1,"b","c","@5|=▲ Tomb"],[8,1,9,1,"b","c","@6|=O) Tomb"],
   [1,8,10,1,"s","","Tomb|- Clear starting left -> right|- Speedrun to Chests & champ packs"]
  ]},
  {id:"a3", n:"Act 3", tombs:true, rows:12, cells:[
@@ -355,6 +357,7 @@ function lines(text){
     }
     if(l.startsWith("~")) return `<span class="h i">${inline(l.slice(1))}</span>`;
     if(l.startsWith("=")) return `<span>${inline(l.slice(1))}</span>`;
+    if(/^@\d$/.test(l)) return `<img class="tomb-ic" src="${TOMBS[+l[1]][1]}" alt="" width="44" height="44">`; // "@n" = tomb symbol n
     return `<span class="h">${inline(l)}</span>`;
   }).join("");
 }
